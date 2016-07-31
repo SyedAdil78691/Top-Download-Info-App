@@ -2,10 +2,13 @@ package com.example.adilhussain.topdownloadinfo;
 
 import android.app.ListActivity;
 
+import java.io.Serializable;
+
+
 /**
  * Created by Adil Hussain on 7/5/2016.
  */
-public class Application {
+public class Application implements Serializable {
     private String name;
     private String artist;
     private String releaseDate;
@@ -42,4 +45,8 @@ public class Application {
                 ", artist='" + getArtist() +
                 ", releaseDate='" + getReleaseDate() ;
     }
+
+
+
+
 }

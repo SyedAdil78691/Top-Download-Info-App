@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity
     String mFileContent;
     private ListView XMLListView;
     ParseApplication parseApplication;
+    NavigationView navigationView;
 
 
     @Override
@@ -41,8 +42,14 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         XMLListView = (ListView)findViewById(R.id.XMLlistView);
 
-        DownloadData downloadData= new DownloadData();
-        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
+        navigationView = (NavigationView)findViewById(R.id.nav_view);
+        fillMenu(navigationView.getMenu());
+
+
+
+
+//        DownloadData downloadData= new DownloadData();
+//        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
 
 
 
@@ -103,7 +110,8 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_10songs) {
+        Log.d("id" , ""+id);
+        if (id == 0) {
             parseApplication = new ParseApplication(mFileContent);
             parseApplication.process();
             Log.d("Before Array Adpater", "Better way");
@@ -130,55 +138,70 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-    private class DownloadData extends AsyncTask<String,Void,String>{
-
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            mFileContent = downloadXMLFile(params[0]);
-            if (mFileContent == null)
-                Log.d("Download Data", "Error Downloading");
-            return mFileContent;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.d("Download Data ","Result was "+result);
-
-        }
-
-        private String downloadXMLFile(String  urlPath){
-            StringBuilder temBuffer = new StringBuilder();
-            try{
-                URL url = new URL(urlPath);
-                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-                int response = connection.getResponseCode();
-                Log.d("Download Data", "Response code was "+response);
-                InputStream is = connection.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                int charRead;
-                char [] inputBuffer = new char[500];
-
-                while (true){
-                    charRead = isr.read(inputBuffer);
-                    if (charRead <= 0){
-                        break;
-                    }
-                    temBuffer.append(String.copyValueOf(inputBuffer, 0, charRead));
-
-                }
-                return temBuffer.toString();
-
-            }catch (IOException e){
-                Log.d("Download Data","IO Exception reading data"+e.getMessage());
-                e.printStackTrace();
-            }catch (SecurityException se){
-                Log.d("Download Data","Internet not Available"+se.getMessage());
-            }
-        return  null;
+    private void fillMenu (Menu menu)
+    {
+        for (int i=0; i< appConstant.Source.length ; i++){
+            menu.add(R.id.sourcesGroup, i , i, appConstant.Source[i]);
         }
     }
+
+
+
+
+
+
+
+//
+//
+//
+//    private class DownloadData extends AsyncTask<String,Void,String>{
+//
+//
+//        @Override
+//        protected String doInBackground(String... params) {
+//
+//            mFileContent = downloadXMLFile(params[0]);
+//            if (mFileContent == null)
+//                Log.d("Download Data", "Error Downloading");
+//            return mFileContent;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result) {
+//            super.onPostExecute(result);
+//            Log.d("Download Data ","Result was "+result);
+//
+//        }
+//
+////        private String downloadXMLFile(String  urlPath){
+////            StringBuilder temBuffer = new StringBuilder();
+////            try{
+////                URL url = new URL(urlPath);
+////                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+////                int response = connection.getResponseCode();
+////                Log.d("Download Data", "Response code was "+response);
+////                InputStream is = connection.getInputStream();
+////                InputStreamReader isr = new InputStreamReader(is);
+////                int charRead;
+////                char [] inputBuffer = new char[500];
+////
+////                while (true){
+////                    charRead = isr.read(inputBuffer);
+////                    if (charRead <= 0){
+////                        break;
+////                    }
+////                    temBuffer.append(String.copyValueOf(inputBuffer, 0, charRead));
+////
+////                }
+////                return temBuffer.toString();
+////
+////            }catch (IOException e){
+////                Log.d("Download Data","IO Exception reading data"+e.getMessage());
+////                e.printStackTrace();
+////            }catch (SecurityException se){
+////                Log.d("Download Data","Internet not Available"+se.getMessage());
+////            }
+////        return  null;
+////        }
+//    }
 }

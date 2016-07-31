@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_10songs"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Top 10 Songs" />
-        <item
-            android:id="@+id/nav_25songs"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Top 25 Songs" />
-        <item
-            android:id="@+id/nav_10albums"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Top 10 Albums" />
-        <item
-            android:id="@+id/nav_25albums"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Top 25 Albums" />
+    <group android:checkableBehavior="single"
+        android:id="@+id/sourcesGroup"
+        android:orderInCategory="0">
     </group>
-
-    <item android:title="Communicate">
+    <item android:title="Communicate"
+        android:orderInCategory="100">
         <menu>
             <item
                 android:id="@+id/nav_share"
