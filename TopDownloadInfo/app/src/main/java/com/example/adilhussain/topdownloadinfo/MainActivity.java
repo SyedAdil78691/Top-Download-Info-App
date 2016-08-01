@@ -1,5 +1,10 @@
 package com.example.adilhussain.topdownloadinfo;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -24,6 +29,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Security;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,7 +38,12 @@ public class MainActivity extends AppCompatActivity
     private ListView XMLListView;
     ParseApplication parseApplication;
     NavigationView navigationView;
+    Intent mServiceIntent;
+    InternalStorage internalStorage;
+    String dataUrl = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml";
 
+    ArrayList<Application> ListForListView;
+    DataBroadcaster receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +51,26 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        XMLListView = (ListView)findViewById(R.id.XMLlistView);
+        XMLListView = (ListView) findViewById(R.id.XMLlistView);
 
-        navigationView = (NavigationView)findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         fillMenu(navigationView.getMenu());
 
+        mServiceIntent = new Intent(this, InternalStorage.class);
+        mServiceIntent.putExtra("link", dataUrl);
+//      mServiceIntent.setData(Uri.parse(dataUrl));
+// Starts the IntentService
+        this.startService(mServiceIntent);
+        //internalStorage = new InternalStorage();
 
-
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DataBroadcaster.PROCESS_RESPONSE);
+        receiver = new DataBroadcaster();
+        registerReceiver(receiver,filter);
+        // unregistor reciever call in onStop....
 
 //        DownloadData downloadData= new DownloadData();
 //        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
-
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -64,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -89,6 +109,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -110,12 +131,14 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        Log.d("id" , ""+id);
+        Log.d("id", "" + id);
         if (id == 0) {
-            parseApplication = new ParseApplication(mFileContent);
-            parseApplication.process();
+//            parseApplication = new ParseApplication(mFileContent);
+//            parseApplication.process();
+
+
             Log.d("Before Array Adpater", "Better way");
-            CustomerAdapter arrayAdapter = new CustomerAdapter(this, parseApplication.getApplications());
+            CustomerAdapter arrayAdapter = new CustomerAdapter(this, ListForListView);
             Log.d("Put Data into XMLListVi", "Better way");
             XMLListView.setAdapter(arrayAdapter);
 
@@ -138,22 +161,13 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void fillMenu (Menu menu)
-    {
-        for (int i=0; i< appConstant.Source.length ; i++){
-            menu.add(R.id.sourcesGroup, i , i, appConstant.Source[i]);
+    private void fillMenu(Menu menu) {
+        for (int i = 0; i < appConstant.Source.length; i++) {
+            menu.add(R.id.sourcesGroup, i, i, appConstant.Source[i]);
         }
     }
 
 
-
-
-
-
-
-//
-//
-//
 //    private class DownloadData extends AsyncTask<String,Void,String>{
 //
 //
@@ -173,35 +187,49 @@ public class MainActivity extends AppCompatActivity
 //
 //        }
 //
-////        private String downloadXMLFile(String  urlPath){
-////            StringBuilder temBuffer = new StringBuilder();
-////            try{
-////                URL url = new URL(urlPath);
-////                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-////                int response = connection.getResponseCode();
-////                Log.d("Download Data", "Response code was "+response);
-////                InputStream is = connection.getInputStream();
-////                InputStreamReader isr = new InputStreamReader(is);
-////                int charRead;
-////                char [] inputBuffer = new char[500];
-////
-////                while (true){
-////                    charRead = isr.read(inputBuffer);
-////                    if (charRead <= 0){
-////                        break;
-////                    }
-////                    temBuffer.append(String.copyValueOf(inputBuffer, 0, charRead));
-////
-////                }
-////                return temBuffer.toString();
-////
-////            }catch (IOException e){
-////                Log.d("Download Data","IO Exception reading data"+e.getMessage());
-////                e.printStackTrace();
-////            }catch (SecurityException se){
-////                Log.d("Download Data","Internet not Available"+se.getMessage());
-////            }
-////        return  null;
-////        }
+//        private String downloadXMLFile(String  urlPath){
+//            StringBuilder temBuffer = new StringBuilder();
+//            try{
+//                URL url = new URL(urlPath);
+//                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+//                int response = connection.getResponseCode();
+//                Log.d("Download Data", "Response code was "+response);
+//                InputStream is = connection.getInputStream();
+//                InputStreamReader isr = new InputStreamReader(is);
+//                int charRead;
+//                char [] inputBuffer = new char[500];
+//
+//                while (true){
+//                    charRead = isr.read(inputBuffer);
+//                    if (charRead <= 0){
+//                        break;
+//                    }
+//                    temBuffer.append(String.copyValueOf(inputBuffer, 0, charRead));
+//
+//                }
+//                return temBuffer.toString();
+//
+//            }catch (IOException e){
+//                Log.d("Download Data","IO Exception reading data"+e.getMessage());
+//                e.printStackTrace();
+//            }catch (SecurityException se){
+//                Log.d("Download Data","Internet not Available"+se.getMessage());
+//            }
+//        return  null;
+//        }
 //    }
+
+    public class DataBroadcaster extends BroadcastReceiver {
+
+        public static final String PROCESS_RESPONSE = "action.PROCESS_RESPONSE";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Bundle b = intent.getExtras();
+            ArrayList<Application> mList = (ArrayList<Application>) b.getSerializable("mGottentFeedList");
+            ListForListView = mList;
+        }
+
+    }
 }

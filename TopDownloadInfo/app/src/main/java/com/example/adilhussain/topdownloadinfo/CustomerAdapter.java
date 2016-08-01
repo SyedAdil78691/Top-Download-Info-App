@@ -29,6 +29,10 @@ import java.util.List;
     public CustomerAdapter(Context context, ArrayList<Application> item) {
         super(context, 0,item);
         this.context= context;
+        if (item==null)
+        {
+            item = new ArrayList<>();
+        }
         this.item= item;
     }
 
